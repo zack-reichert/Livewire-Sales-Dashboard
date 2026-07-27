@@ -152,24 +152,24 @@ a{color:var(--lw-orange);text-decoration:none}
     <div class="card" style="padding:14px 18px">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
         <span style="font-size:12px;font-weight:600;color:var(--lw-muted);text-transform:uppercase;letter-spacing:.08em">Closed won — MTD</span>
-        <span style="font-size:11px;color:var(--lw-muted)">goal <strong style="color:var(--lw-text)">$381,875</strong></span>
+        <span style="font-size:11px;color:var(--lw-muted)">goal <strong style="color:var(--lw-text)" id="pb-cw-goal">$381,875</strong></span>
       </div>
-      <div style="font-size:28px;font-weight:700;color:#4A90D9;margin-bottom:6px">$204K</div>
+      <div style="font-size:28px;font-weight:700;color:#4A90D9;margin-bottom:6px" id="pb-cw-val">$204K</div>
       <div style="height:8px;border-radius:4px;background:#333;overflow:hidden;margin-bottom:4px">
-        <div style="height:100%;border-radius:4px;background:#4A90D9;width:53%;transition:width .5s ease"></div>
+        <div id="pb-cw-fill" style="height:100%;border-radius:4px;background:#4A90D9;width:53%;transition:width .5s ease"></div>
       </div>
-      <div style="font-size:11px;color:var(--lw-muted)">53% of $381,875 July goal</div>
+      <div style="font-size:11px;color:var(--lw-muted)" id="pb-cw-pct">53% of $381,875 goal</div>
     </div>
     <div class="card" style="padding:14px 18px">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
-        <span style="font-size:12px;font-weight:600;color:var(--lw-muted);text-transform:uppercase;letter-spacing:.08em">Written business — week</span>
-        <span style="font-size:11px;color:var(--lw-muted)">goal <strong style="color:var(--lw-text)">$200K</strong></span>
+        <span style="font-size:12px;font-weight:600;color:var(--lw-muted);text-transform:uppercase;letter-spacing:.08em">Written business — last week</span>
+        <span style="font-size:11px;color:var(--lw-muted)">goal <strong style="color:var(--lw-text)" id="pb-wb-goal">$200K</strong></span>
       </div>
       <div style="font-size:28px;font-weight:700;color:#F47920;margin-bottom:6px" id="pb-wb-val">$0</div>
       <div style="height:8px;border-radius:4px;background:#333;overflow:hidden;margin-bottom:4px">
         <div id="pb-wb-fill" style="height:100%;border-radius:4px;background:#F47920;width:0%;transition:width .5s ease"></div>
       </div>
-      <div style="font-size:11px;color:var(--lw-muted)" id="pb-wb-pct">Enter commitments above to track</div>
+      <div style="font-size:11px;color:var(--lw-muted)" id="pb-wb-pct">—</div>
     </div>
     <div class="card" style="padding:14px 18px">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
@@ -472,14 +472,7 @@ function calcTotals(){
   const rmrEl=document.getElementById('tot-rmr'); if(rmrEl) rmrEl.textContent=rmr;
   const drEl =document.getElementById('tot-dr');  if(drEl)  drEl.textContent=dr;
 
-  // Progress bars
-  const wbGoal = 200000;
-  const wbPct = Math.min(Math.round((wb/wbGoal)*100),100);
-  const wbColor = wb>=wbGoal?'#4CAF50':wb>=wbGoal*.7?'#F47920':'#E74C3C';
-  const wbValEl=document.getElementById('pb-wb-val'); if(wbValEl) wbValEl.textContent='$'+Math.round(wb).toLocaleString();
-  const wbFill=document.getElementById('pb-wb-fill'); if(wbFill){wbFill.style.width=wbPct+'%';wbFill.style.background=wbColor;}
-  const wbPctEl=document.getElementById('pb-wb-pct'); if(wbPctEl) wbPctEl.textContent=wbPct+'% of $200K weekly goal';
-
+  // Design retainers progress bar (no sheet source — driven by this week's commitment inputs)
   const drGoal = 3;
   const drPct = Math.min(Math.round((dr/drGoal)*100),100);
   const drColor = dr>=drGoal?'#4CAF50':dr>=2?'#F47920':'#E74C3C';
@@ -619,12 +612,38 @@ function capturePriorInputs(){
   });
 }
 
+// "Closed won — MTD" and "Written business" cards mirror the Sales/Pipeline scoreboard
+// rows above (Closed Won $ <month> and Written $ (Last Week)) rather than having their
+// own data — found by label so it keeps working as the month name changes.
+function updateLinkedProgressCards(){
+  const cw = CONFIG.sales.find(s => /^closed won \$ (?!ytd)/i.test(s.label));
+  if(cw){
+    const pct = cw.pct===null ? 0 : Math.min(cw.pct,100);
+    document.getElementById('pb-cw-val').textContent = cw.actual;
+    document.getElementById('pb-cw-goal').textContent = cw.goal;
+    document.getElementById('pb-cw-fill').style.width = pct+'%';
+    document.getElementById('pb-cw-fill').style.background = cw.color;
+    document.getElementById('pb-cw-pct').textContent = (cw.pct===null?'—':cw.pct+'%')+' of '+cw.goal+' goal';
+  }
+
+  const wb = CONFIG.pipeline.find(p => /written.*last week/i.test(p.label));
+  if(wb){
+    const pct = wb.pct===null ? 0 : Math.min(wb.pct,100);
+    document.getElementById('pb-wb-val').textContent = wb.actual;
+    document.getElementById('pb-wb-goal').textContent = wb.goal;
+    document.getElementById('pb-wb-fill').style.width = pct+'%';
+    document.getElementById('pb-wb-fill').style.background = wb.color;
+    document.getElementById('pb-wb-pct').textContent = (wb.pct===null?'—':wb.pct+'%')+' of '+wb.goal+' goal';
+  }
+}
+
 // Master render — call on initial load and after every live sheet sync
 function renderAll(){
   capturePriorInputs();
   document.getElementById('week-label').textContent = `Week ${CONFIG.week} · ${CONFIG.quarter}`;
   renderScoreboard('sales-scoreboard', CONFIG.sales);
   renderScoreboard('pipeline-scoreboard', CONFIG.pipeline);
+  updateLinkedProgressCards();
 
   document.getElementById('rep-grid').innerHTML = CONFIG.reps.map((r,ri)=>`
     <div class="rep-card">
