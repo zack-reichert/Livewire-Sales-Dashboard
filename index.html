@@ -757,6 +757,31 @@ function applySheetData(grid){
   }
   if(monthRows.length===12) CONFIG.monthly = monthRows;
 
+  // Closed Won YoY (2026 line + goal line) is just the monthly table above, cumulative —
+  // stays in lockstep with CONFIG.monthly automatically as the sheet fills in each month.
+  if(CONFIG.monthly.length===12){
+    let cumActual=0, cumGoal=0, hitNullActual=false;
+    const y2026=[], goalCum=[];
+    CONFIG.monthly.forEach(m=>{
+      cumGoal += (m.goal||0);
+      goalCum.push(cumGoal);
+      if(m.actual===null || hitNullActual){ hitNullActual=true; y2026.push(null); }
+      else { cumActual += m.actual; y2026.push(cumActual); }
+    });
+    CONFIG.cwYoy.y2026 = y2026;
+    CONFIG.cwYoy.goal = goalCum;
+  }
+
+  // Pipeline YoY 2026 line — "Pipeline - Avg" table (rows 44-55, Jan-Dec full month names).
+  let hitNullPip=false;
+  const pipY2026=[];
+  for(let i=0;i<12;i++){
+    const val = toNum(cellAt(grid, 44+i, 1));
+    if(val===null || hitNullPip){ hitNullPip=true; pipY2026.push(null); }
+    else pipY2026.push(Math.round(val/1000));
+  }
+  if(pipY2026.some(v=>v!==null)) CONFIG.pipYoy.y2026 = pipY2026;
+
   // Per-rep Commitment/Actual blocks (label col, goal(commitment) col, actual col, data rows)
   const repBlocks = {
     Zack:    {labelCol:8,  goalCol:9,  actualCol:11, rows:[13,14,15,16,17]},
