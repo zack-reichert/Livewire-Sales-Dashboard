@@ -53,7 +53,7 @@ a{color:var(--lw-orange);text-decoration:none}
 .br{background:rgba(231,76,60,.15);color:#E87070}
 .ba{background:rgba(245,166,35,.15);color:#F5B53A}
 
-.rep-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.rep-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:16px}
 .rep-card{background:var(--lw-card);border:1px solid var(--lw-border);border-radius:10px;padding:14px 16px}
 .rep-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--lw-border)}
 .avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
@@ -172,20 +172,17 @@ a{color:var(--lw-orange);text-decoration:none}
       <div style="font-size:11px;color:var(--lw-muted)" id="pb-wb-pct">—</div>
     </div>
     <div class="card" style="padding:14px 18px">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
-        <span style="font-size:12px;font-weight:600;color:var(--lw-muted);text-transform:uppercase;letter-spacing:.08em">Design retainers — week</span>
-        <span style="font-size:11px;color:var(--lw-muted)">goal <strong style="color:var(--lw-text)">3</strong> <span style="color:#666">(Marshall, Dillon, Altus)</span></span>
+      <div class="card-title" style="margin-bottom:8px">Written business by week — Q2 &amp; Q3</div>
+      <div class="legend">
+        <span><span class="ld" style="background:#F47920"></span>Written biz</span>
+        <span><span class="ld" style="background:#444;outline:1px dashed #777"></span>$200K goal</span>
       </div>
-      <div style="font-size:28px;font-weight:700;color:#C39BD3;margin-bottom:6px" id="pb-dr-val">0</div>
-      <div style="height:8px;border-radius:4px;background:#333;overflow:hidden;margin-bottom:4px">
-        <div id="pb-dr-fill" style="height:100%;border-radius:4px;background:#C39BD3;width:0%;transition:width .5s ease"></div>
-      </div>
-      <div style="font-size:11px;color:var(--lw-muted)" id="pb-dr-pct">Enter commitments above to track</div>
+      <div class="chart-wrap" style="height:120px"><canvas id="wbChart"></canvas></div>
     </div>
   </div>
 
   <!-- REP CARDS -->
-  <p class="section-label">Rep scorecards — Zack &bull; Marshall &bull; Dillon &bull; Altus</p>
+  <p class="section-label">Rep scorecards — Zack &bull; Marshall &bull; Dillon &bull; Altus &bull; Morgan</p>
   <div class="rep-grid" id="rep-grid"></div>
 
   <!-- COMMITMENTS -->
@@ -215,34 +212,9 @@ a{color:var(--lw-orange);text-decoration:none}
     </div>
   </div>
 
-  <!-- Q2 WRITTEN BIZ + MONTHLY GOAL VS ACTUAL -->
-  <div class="grid2">
-    <div class="card">
-      <div class="card-title">Written business by week — Q2 &amp; Q3</div>
-      <div class="legend">
-        <span><span class="ld" style="background:#F47920"></span>Written biz</span>
-        <span><span class="ld" style="background:#444;outline:1px dashed #777"></span>$200K goal</span>
-      </div>
-      <div class="chart-wrap"><canvas id="wbChart"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Closed won: monthly goal vs. actual</div>
-      <div class="legend">
-        <span><span class="ld" style="background:#F47920"></span>Actual</span>
-        <span><span class="ld" style="background:#3A5A7A"></span>Goal</span>
-      </div>
-      <div class="monthly-chart-wrap"><canvas id="monthlyChart"></canvas></div>
-    </div>
-  </div>
-
-
   <!-- MEETING NOTES -->
   <p class="section-label" style="margin-top:24px">Meeting notes</p>
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:40px">
-    <div class="card">
-      <div class="card-title">Operations</div>
-      <textarea class="fill-field" placeholder="Operations notes..." style="min-height:160px;resize:vertical;line-height:1.5"></textarea>
-    </div>
     <div class="card">
       <div class="card-title">Parking lot</div>
       <textarea class="fill-field" placeholder="Items to come back to..." style="min-height:160px;resize:vertical;line-height:1.5"></textarea>
@@ -250,6 +222,18 @@ a{color:var(--lw-orange);text-decoration:none}
     <div class="card">
       <div class="card-title">Commitments</div>
       <textarea class="fill-field" placeholder="This week's commitments..." style="min-height:160px;resize:vertical;line-height:1.5"></textarea>
+    </div>
+    <div class="card">
+      <div class="card-title">Josh — Project management</div>
+      <textarea class="fill-field" id="note-josh" placeholder="Project management notes..." style="min-height:160px;resize:vertical;line-height:1.5" oninput="CONFIG.notes.josh=this.value; scheduleSharedSave();"></textarea>
+    </div>
+    <div class="card">
+      <div class="card-title">Ben — Logistics</div>
+      <textarea class="fill-field" id="note-ben" placeholder="Logistics notes..." style="min-height:160px;resize:vertical;line-height:1.5" oninput="CONFIG.notes.ben=this.value; scheduleSharedSave();"></textarea>
+    </div>
+    <div class="card">
+      <div class="card-title">Operations</div>
+      <textarea class="fill-field" placeholder="Operations notes..." style="min-height:160px;resize:vertical;line-height:1.5"></textarea>
     </div>
   </div>
 </div>
@@ -261,6 +245,9 @@ a{color:var(--lw-orange);text-decoration:none}
 const CONFIG = {
   week: 28,
   quarter: 'Q3 2026',
+
+  // Shared team notes (Josh/Ben) — populated from the shared backend on load.
+  notes: { josh: '', ben: '' },
 
   // --- SALES SCOREBOARD ---
   sales: [
@@ -284,7 +271,7 @@ const CONFIG = {
   reps: [
     {
       initials: 'ZA', color: 'rgba(76,175,80,.15)', textColor: '#6BCB6B',
-      name: 'Zack', sub: 'Outbound focus',
+      name: 'Zack', sub: '— % to goal',
       metrics: [
         { label: 'Leads entered',          actual: '9',     goal: '10',   pct: 90,  c: 'a' },
         { label: 'Top target connections', actual: '0',     goal: '1',    pct: 0,   c: 'r' },
@@ -303,11 +290,9 @@ const CONFIG = {
         { label: 'Closed won last wk',     actual: '$55,580',  goal: '$60,000',  pct: 93,  c: 'a' },
         { label: 'Closed won YTD',         actual: '$879,912', goal: '$933,333', pct: 94,  c: 'a' },
         { label: 'Written business',       actual: '$9,082',   goal: '$25,000',  pct: 36,  c: 'r' },
-        { label: 'Design retainers',       actual: '0',        goal: '1',        pct: 0,   c: 'r' },
         { label: 'Pipeline $',             actual: '$431,985', goal: '$400,000', pct: 108, c: 'g' },
         { label: 'Consults',               actual: '5',        goal: '5',        pct: 100, c: 'g' },
         { label: 'Networking/Prospecting', actual: '0',        goal: '1',        pct: 0,   c: 'r' },
-        { label: 'Est/budget deliveries',  actual: '3',        goal: '3',        pct: 100, c: 'g' },
         { label: 'Ketra appts YTD',        actual: '12',       goal: '28',       pct: 43,  c: 'r' },
         { label: 'RMR YTD',               actual: '14',       goal: '28',       pct: 50,  c: 'a' },
       ],
@@ -321,11 +306,9 @@ const CONFIG = {
         { label: 'Closed won last wk',     actual: '$12,635',  goal: '$15,000',  pct: 84,  c: 'a' },
         { label: 'Closed won YTD',         actual: '$168,902', goal: '$403,844', pct: 42,  c: 'r' },
         { label: 'Written business',       actual: '$103,440', goal: '$35,000',  pct: 295, c: 'g' },
-        { label: 'Design retainers',       actual: '0',        goal: '1',        pct: 0,   c: 'r' },
         { label: 'Pipeline $',             actual: '$152,758', goal: '$187,500', pct: 81,  c: 'a' },
         { label: 'Consults',               actual: '3',        goal: '5',        pct: 60,  c: 'r' },
         { label: 'Networking/Prospecting', actual: '0',        goal: '1',        pct: 0,   c: 'r' },
-        { label: 'Est/budget deliveries',  actual: '1',        goal: '3',        pct: 33,  c: 'r' },
         { label: 'Ketra appts YTD',        actual: '5',        goal: '28',       pct: 18,  c: 'r' },
         { label: 'RMR YTD',               actual: '7',        goal: '28',       pct: 25,  c: 'r' },
       ],
@@ -334,17 +317,29 @@ const CONFIG = {
     },
     {
       initials: 'AL', color: 'rgba(155,89,182,.15)', textColor: '#C39BD3',
-      name: 'Altus', sub: 'New team member',
+      name: 'Altus', sub: '— % to goal',
       metrics: [
         { label: 'Closed won last wk',     actual: '$0',    goal: '—',        pct: null, c: '' },
         { label: 'Closed won YTD',         actual: '$0',    goal: '—',        pct: null, c: '' },
         { label: 'Written business',       actual: '$0',    goal: '$20,000',  pct: 0,    c: 'r' },
-        { label: 'Design retainers',       actual: '0',     goal: '1',        pct: 0,    c: 'r' },
         { label: 'Pipeline $',             actual: '$8,391',goal: '—',        pct: null, c: 'g' },
         { label: 'Consults',               actual: '5',     goal: '5',        pct: 100,  c: 'g' },
         { label: 'Networking/Prospecting', actual: '0',     goal: '1',        pct: 0,    c: 'r' },
         { label: 'Ketra appts YTD',        actual: '2',     goal: '—',        pct: null, c: 'g' },
         { label: 'RMR YTD',               actual: '0',     goal: '—',        pct: null, c: '' },
+      ],
+      target: '',
+      win: '',
+    },
+    {
+      initials: 'MO', color: 'rgba(45,212,191,.15)', textColor: '#2DD4BF',
+      name: 'Morgan', sub: '— % to goal',
+      metrics: [
+        { label: 'Sales meetings',         actual: '0',     goal: '3',        pct: 0, c: 'r' },
+        { label: 'Pipeline (Total)',       actual: '$0',    goal: '$220K',    pct: 0, c: 'r' },
+        { label: 'Written business',       actual: '$0',    goal: '$20,000',  pct: 0, c: 'r' },
+        { label: 'Design retainers',       actual: '0',     goal: '1',        pct: 0, c: 'r' },
+        { label: 'Networking events',      actual: '0',     goal: '1',        pct: 0, c: 'r' },
       ],
       target: '',
       win: '',
@@ -357,6 +352,7 @@ const CONFIG = {
     { name: 'Marshall',cw: '$103,000', wb: '$25,000',  co: '', ke: '', net: '', rmr: '', dr: '' },
     { name: 'Dillon',  cw: '$15,000',  wb: '$35,000',  co: '', ke: '', net: '', rmr: '', dr: '' },
     { name: 'Altus',   cw: '',         wb: '',          co: '', ke: '', net: '', rmr: '', dr: '' },
+    { name: 'Morgan',  cw: '',         wb: '',          co: '', ke: '', net: '', rmr: '', dr: '' },
   ],
 
   // --- Q2 + Q3 WRITTEN BIZ BY WEEK ---
@@ -430,17 +426,20 @@ function renderScoreboard(id, rows){
 }
 
 // Commitments
+// Every commitment input writes straight into CONFIG.commitments on keystroke (not just at
+// render time) so the in-memory state is always accurate for collectSharedState() to read,
+// regardless of focus — then schedules a debounced save to the shared Apps Script backend.
 function buildCommits(){
   document.getElementById('commit-rows').innerHTML = CONFIG.commitments.map((r,i)=>`
     <div class="commit-row">
       <span class="commit-rep-label">${r.name}</span>
-      <input class="commit-input" id="cw-${i}"  placeholder="$0" value="${r.cw}"       oninput="calcTotals()">
-      <input class="commit-input" id="wb-${i}"  placeholder="$0" value="${r.wb}"       oninput="calcTotals()">
-      <input class="commit-input" id="co-${i}"  placeholder="0"  value="${r.co}"       oninput="calcTotals()">
-      <input class="commit-input" id="ke-${i}"  placeholder="0"  value="${r.ke}"       oninput="calcTotals()">
-      <input class="commit-input" id="net-${i}" placeholder="0"  value="${r.net||''}"  oninput="calcTotals()">
-      <input class="commit-input" id="rmr-${i}" placeholder="0"  value="${r.rmr||''}"  oninput="calcTotals()">
-      <input class="commit-input" id="dr-${i}"  placeholder="0"  value="${r.dr||''}"   oninput="calcTotals()">
+      <input class="commit-input" id="cw-${i}"  placeholder="$0" value="${r.cw}"       oninput="CONFIG.commitments[${i}].cw=this.value;   calcTotals(); scheduleSharedSave();">
+      <input class="commit-input" id="wb-${i}"  placeholder="$0" value="${r.wb}"       oninput="CONFIG.commitments[${i}].wb=this.value;   calcTotals(); scheduleSharedSave();">
+      <input class="commit-input" id="co-${i}"  placeholder="0"  value="${r.co}"       oninput="CONFIG.commitments[${i}].co=this.value;   calcTotals(); scheduleSharedSave();">
+      <input class="commit-input" id="ke-${i}"  placeholder="0"  value="${r.ke}"       oninput="CONFIG.commitments[${i}].ke=this.value;   calcTotals(); scheduleSharedSave();">
+      <input class="commit-input" id="net-${i}" placeholder="0"  value="${r.net||''}"  oninput="CONFIG.commitments[${i}].net=this.value;  calcTotals(); scheduleSharedSave();">
+      <input class="commit-input" id="rmr-${i}" placeholder="0"  value="${r.rmr||''}"  oninput="CONFIG.commitments[${i}].rmr=this.value;  calcTotals(); scheduleSharedSave();">
+      <input class="commit-input" id="dr-${i}"  placeholder="0"  value="${r.dr||''}"   oninput="CONFIG.commitments[${i}].dr=this.value;   calcTotals(); scheduleSharedSave();">
     </div>`).join('');
   calcTotals();
 }
@@ -471,14 +470,6 @@ function calcTotals(){
   const netEl=document.getElementById('tot-net'); if(netEl) netEl.textContent=net;
   const rmrEl=document.getElementById('tot-rmr'); if(rmrEl) rmrEl.textContent=rmr;
   const drEl =document.getElementById('tot-dr');  if(drEl)  drEl.textContent=dr;
-
-  // Design retainers progress bar (no sheet source — driven by this week's commitment inputs)
-  const drGoal = 3;
-  const drPct = Math.min(Math.round((dr/drGoal)*100),100);
-  const drColor = dr>=drGoal?'#4CAF50':dr>=2?'#F47920':'#E74C3C';
-  const drValEl=document.getElementById('pb-dr-val'); if(drValEl) drValEl.textContent=dr;
-  const drFill=document.getElementById('pb-dr-fill'); if(drFill){drFill.style.width=drPct+'%';drFill.style.background=drColor;}
-  const drPctEl=document.getElementById('pb-dr-pct'); if(drPctEl) drPctEl.textContent=dr+' of 3 this week ('+drPct+'%)';
 }
 
 function saveCommitments(){
@@ -489,10 +480,10 @@ function saveCommitments(){
 
 // Charts — instances are kept so a live sync can redraw them in place
 const gridC='rgba(255,255,255,0.06)', tickC='#666';
-let wbChart, cwYoyChart, pipYoyChart, monthlyChart;
+let wbChart, cwYoyChart, pipYoyChart;
 
 function renderCharts(){
-  [wbChart, cwYoyChart, pipYoyChart, monthlyChart].forEach(c=>c && c.destroy());
+  [wbChart, cwYoyChart, pipYoyChart].forEach(c=>c && c.destroy());
 
   wbChart = new Chart(document.getElementById('wbChart'),{
     type:'bar',
@@ -555,63 +546,10 @@ function renderCharts(){
       }
     }
   });
-
-  const monthlyLabels = CONFIG.monthly.map(m=>m.month);
-  const monthlyGoal   = CONFIG.monthly.map(m=>m.goal);
-  const monthlyActual = CONFIG.monthly.map(m=>m.actual);
-  monthlyChart = new Chart(document.getElementById('monthlyChart'),{
-    type:'bar',
-    data:{
-      labels: monthlyLabels,
-      datasets:[
-        {label:'Goal', data:monthlyGoal,
-         backgroundColor:'rgba(58,90,122,0.75)',
-         borderRadius:3, borderSkipped:false, barPercentage:.8, categoryPercentage:.7, order:2},
-        {label:'Actual', data:monthlyActual,
-         backgroundColor: monthlyActual.map((a,i)=>{
-           if(a===null) return 'rgba(0,0,0,0)';
-           return a>=monthlyGoal[i]?'rgba(76,175,80,0.85)':'rgba(231,76,60,0.85)';
-         }),
-         borderRadius:3, borderSkipped:false, barPercentage:.5, categoryPercentage:.7, order:1}
-      ]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false},
-        tooltip:{mode:'index',intersect:false,callbacks:{label:ctx=>{
-          if(ctx.raw===null) return null;
-          if(ctx.dataset.label==='Actual'){
-            const diff=ctx.raw-monthlyGoal[ctx.dataIndex];
-            return `Actual: $${ctx.raw}K (${diff>=0?'+':''}$${diff}K vs goal)`;
-          }
-          return `Goal: $${ctx.raw}K`;
-        }}}
-      },
-      scales:{
-        x:{grid:{color:gridC},ticks:{color:tickC,font:{size:10}}},
-        y:{grid:{color:gridC},ticks:{color:tickC,font:{size:10},callback:v=>'$'+v+'K'},beginAtZero:true}
-      }
-    }
-  });
 }
 
 // Preserves anything typed into free-text/manual fields (top target, biggest win,
 // consults/ketra/networking/RMR/design-retainer commitment inputs) across a re-render,
-// since the sections below are rebuilt from CONFIG every time (initial load + every live sync).
-function capturePriorInputs(){
-  CONFIG.reps.forEach((r,ri)=>{
-    const t=document.getElementById('target-'+ri); if(t) r.target=t.value;
-    const w=document.getElementById('win-'+ri); if(w) r.win=w.value;
-  });
-  CONFIG.commitments.forEach((r,i)=>{
-    const co=document.getElementById('co-'+i);   if(co)  r.co=co.value;
-    const ke=document.getElementById('ke-'+i);   if(ke)  r.ke=ke.value;
-    const net=document.getElementById('net-'+i); if(net) r.net=net.value;
-    const rmr=document.getElementById('rmr-'+i); if(rmr) r.rmr=rmr.value;
-    const dr=document.getElementById('dr-'+i);   if(dr)  r.dr=dr.value;
-  });
-}
-
 // "Closed won — MTD" and "Written business" cards mirror the Sales/Pipeline scoreboard
 // rows above (Closed Won $ <month> and Written $ (Last Week)) rather than having their
 // own data — found by label so it keeps working as the month name changes.
@@ -637,36 +575,52 @@ function updateLinkedProgressCards(){
   }
 }
 
-// Master render — call on initial load and after every live sheet sync
+// Master render — call on initial load, after every live sheet sync, and after every shared-
+// state poll. Skips regenerating a section's inner HTML while the user has focus inside it
+// (so an active keystroke never gets yanked out from under them); CONFIG is always kept
+// current via direct oninput writes, so the skip never loses data, just a render frame.
 function renderAll(){
-  capturePriorInputs();
   document.getElementById('week-label').textContent = `Week ${CONFIG.week} · ${CONFIG.quarter}`;
   renderScoreboard('sales-scoreboard', CONFIG.sales);
   renderScoreboard('pipeline-scoreboard', CONFIG.pipeline);
   updateLinkedProgressCards();
 
-  document.getElementById('rep-grid').innerHTML = CONFIG.reps.map((r,ri)=>`
-    <div class="rep-card">
-      <div class="rep-header">
-        <div class="avatar" style="background:${r.color};color:${r.textColor}">${r.initials}</div>
-        <div><div class="rep-name">${r.name}</div><div class="rep-sub">${r.sub}</div></div>
-      </div>
-      ${r.metrics.map(m=>`
-        <div class="rm">
-          <span class="rm-label">${m.label}</span>
-          <div class="rm-right">
-            <span class="rm-actual" style="color:${m.c==='g'?'#4CAF50':m.c==='r'?'#E74C3C':m.c==='a'?'#F5A623':'#666'}">${m.actual}</span>
-            <span class="rm-goal">/ ${m.goal}</span>
-            ${badge(m.pct,m.c)}
-          </div>
-        </div>`).join('')}
-      <div class="fill-label">Top target</div>
-      <input class="fill-field" id="target-${ri}" placeholder="Name / Business" value="${r.target}">
-      <div class="fill-label">Biggest win</div>
-      <input class="fill-field" id="win-${ri}" placeholder="This week's win..." value="${r.win}">
-    </div>`).join('');
+  const repGridEl = document.getElementById('rep-grid');
+  if(!repGridEl.contains(document.activeElement)){
+    repGridEl.innerHTML = CONFIG.reps.map((r,ri)=>`
+      <div class="rep-card">
+        <div class="rep-header">
+          <div class="avatar" style="background:${r.color};color:${r.textColor}">${r.initials}</div>
+          <div><div class="rep-name">${r.name}</div><div class="rep-sub">${r.sub}</div></div>
+        </div>
+        ${r.metrics.map(m=>`
+          <div class="rm">
+            <span class="rm-label">${m.label}</span>
+            <div class="rm-right">
+              <span class="rm-actual" style="color:${m.c==='g'?'#4CAF50':m.c==='r'?'#E74C3C':m.c==='a'?'#F5A623':'#666'}">${m.actual}</span>
+              <span class="rm-goal">/ ${m.goal}</span>
+              ${badge(m.pct,m.c)}
+            </div>
+          </div>`).join('')}
+        <div class="fill-label">Top target</div>
+        <input class="fill-field" id="target-${ri}" placeholder="Name / Business" value="${r.target}" oninput="CONFIG.reps[${ri}].target=this.value; scheduleSharedSave();">
+        <div class="fill-label">Biggest win</div>
+        <input class="fill-field" id="win-${ri}" placeholder="This week's win..." value="${r.win}" oninput="CONFIG.reps[${ri}].win=this.value; scheduleSharedSave();">
+      </div>`).join('');
+  }
 
-  buildCommits();
+  const commitRowsEl = document.getElementById('commit-rows');
+  if(!commitRowsEl.contains(document.activeElement)){
+    buildCommits();
+  } else {
+    calcTotals();
+  }
+
+  const joshEl = document.getElementById('note-josh');
+  const benEl = document.getElementById('note-ben');
+  if(joshEl && document.activeElement!==joshEl) joshEl.value = CONFIG.notes.josh||'';
+  if(benEl && document.activeElement!==benEl) benEl.value = CONFIG.notes.ben||'';
+
   renderCharts();
 }
 
@@ -785,23 +739,15 @@ function applySheetData(grid){
   // Per-rep Commitment/Actual blocks (label col, goal(commitment) col, actual col, data rows)
   const repBlocks = {
     Zack:    {labelCol:8,  goalCol:9,  actualCol:11, rows:[13,14,15,16,17]},
-    Marshall:{labelCol:13, goalCol:14, actualCol:15, rows:[15,16,18,19,20,21,22,23,24]},
-    Dillon:  {labelCol:16, goalCol:17, actualCol:18, rows:[15,16,18,19,20,21,22,23,24]},
-    Altus:   {labelCol:19, goalCol:20, actualCol:21, rows:[15,16,18,19,20,21,22,23,24]},
+    Marshall:{labelCol:13, goalCol:14, actualCol:15, rows:[15,16,18,19,20,22,23,24,25]},
+    Dillon:  {labelCol:16, goalCol:17, actualCol:18, rows:[15,16,18,19,20,22,23,24,25]},
+    Altus:   {labelCol:19, goalCol:20, actualCol:21, rows:[15,16,18,19,20,22,23,24,25]},
   };
   // Zack has no "Ketra" row in his block — fall back to the small YTD Ketra table (cols 4-6).
   let zackKetra=null;
   for(let r=2;r<=6;r++){
     if(cellAt(grid,r,4)==='Zack'){ zackKetra={actual:cellAt(grid,r,5), goal:cellAt(grid,r,6)}; break; }
   }
-
-  // Metrics with no home in the sheet (hand-maintained). Preserved across every sync by
-  // label, re-spliced back in right after "Written business" so they don't get wiped.
-  const MANUAL_REP_METRICS = {
-    Marshall: ['Design retainers'],
-    Dillon:   ['Design retainers'],
-    Altus:    ['Design retainers'],
-  };
 
   CONFIG.reps.forEach(rep=>{
     const block = repBlocks[rep.name];
@@ -818,29 +764,22 @@ function applySheetData(grid){
       metrics.push({label:'Ketra appts YTD', actual:zackKetra.actual, goal: zackKetra.goal || '—', pct, c: pct===null?'g':classForPct(pct)});
     }
     if(!metrics.length) return;
+    rep.metrics = metrics;
 
-    const manualLabels = MANUAL_REP_METRICS[rep.name] || [];
-    const manualExisting = (rep.metrics||[]).filter(m=>manualLabels.includes(m.label));
-    let merged = metrics;
-    if(manualExisting.length){
-      const wbIdx = merged.findIndex(m=>/written business/i.test(m.label));
-      const insertAt = wbIdx===-1 ? merged.length : wbIdx+1;
-      merged = merged.slice(0,insertAt).concat(manualExisting, merged.slice(insertAt));
+    // Header sub-text under the rep's name. Marshall/Dillon have an explicit sheet "Run
+    // Rate" cell; Altus has a "% to YTD goal" cell but no run-rate figure; Zack has neither
+    // (his role doesn't track $ closed-won) so his header falls back to his Pipeline metric.
+    const pctToGoal = toNum(cellAt(grid, 17, block.goalCol));
+    if(rep.name==='Marshall' || rep.name==='Dillon'){
+      const runRateCol = rep.name==='Marshall' ? 14 : 17;
+      const runRate = cellAt(grid, 27, runRateCol);
+      if(runRate && pctToGoal!==null) rep.sub = `Run rate ${runRate} · ${Math.round(pctToGoal)}%`;
+    } else if(rep.name==='Altus'){
+      rep.sub = pctToGoal===null ? '— % to goal' : `${Math.round(pctToGoal)}% to YTD goal`;
+    } else {
+      const pipeline = metrics.find(m=>/pipeline/i.test(m.label));
+      rep.sub = (pipeline && pipeline.pct!==null) ? `${pipeline.pct}% to pipeline goal` : '— % to goal';
     }
-    rep.metrics = merged;
-  });
-
-  // Commitments: update only the sheet-sourced cw/wb fields, in place, by name — this
-  // keeps the existing row order and never touches co/ke/net/rmr/dr (those are manual-only
-  // inputs with no source in the sheet, preserved via capturePriorInputs()).
-  const sheetCommitByName = {};
-  for(let r=3;r<=6;r++){
-    const name=cellAt(grid,r,0);
-    if(name) sheetCommitByName[name] = {cw:cellAt(grid,r,1), wb:cellAt(grid,r,2)};
-  }
-  (CONFIG.commitments||[]).forEach(row=>{
-    const sc = sheetCommitByName[row.name];
-    if(sc){ row.cw = sc.cw; row.wb = sc.wb; }
   });
 
   const wbLabels=[], wbData=[];
@@ -878,6 +817,89 @@ async function fetchLiveData(){
 
 fetchLiveData();
 setInterval(fetchLiveData, SYNC_INTERVAL_MS);
+
+// ============================================================
+// SHARED TEAM INPUTS — the "This week's commitments" table, each
+// rep's Top Target / Biggest Win, and the Josh/Ben notes are all
+// stored in a small Google Apps Script "backend" (a JSON blob in a
+// dedicated tab of the same Google Sheet) so every viewer of the
+// GitHub Pages URL sees the same data, and one person's entry shows
+// up for everyone else. See apps-script-backend.gs for the script
+// to deploy and paste its Web App URL below.
+//
+// NOTE: this endpoint is deployed with "Anyone" access (required for
+// a public dashboard with no login) — anyone with this URL can read
+// AND write this shared data, same trust model as the dashboard
+// itself being a public link.
+// ============================================================
+const SHARED_STATE_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+const SHARED_POLL_MS = 20000;
+let sharedSaveTimer = null;
+let lastSharedJSON = null;
+
+function sharedStateConfigured(){
+  return SHARED_STATE_URL && !SHARED_STATE_URL.includes('PASTE_YOUR');
+}
+
+function collectSharedState(){
+  return {
+    commitments: CONFIG.commitments.map(r=>({name:r.name, cw:r.cw, wb:r.wb, co:r.co, ke:r.ke, net:r.net, rmr:r.rmr, dr:r.dr})),
+    repInputs: CONFIG.reps.map(r=>({name:r.name, target:r.target, win:r.win})),
+    notes: { josh: CONFIG.notes.josh||'', ben: CONFIG.notes.ben||'' },
+  };
+}
+
+function applySharedState(state){
+  if(!state) return;
+  (state.commitments||[]).forEach(sc=>{
+    const row = CONFIG.commitments.find(r=>r.name===sc.name);
+    if(row) Object.assign(row, sc);
+  });
+  (state.repInputs||[]).forEach(ri=>{
+    const rep = CONFIG.reps.find(r=>r.name===ri.name);
+    if(rep){ rep.target = ri.target||''; rep.win = ri.win||''; }
+  });
+  if(state.notes){
+    CONFIG.notes.josh = state.notes.josh||'';
+    CONFIG.notes.ben = state.notes.ben||'';
+  }
+}
+
+async function fetchSharedState(){
+  if(!sharedStateConfigured()) return;
+  try{
+    const res = await fetch(SHARED_STATE_URL, {cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const json = await res.text();
+    if(json===lastSharedJSON) return;
+    lastSharedJSON = json;
+    applySharedState(JSON.parse(json));
+    renderAll();
+  }catch(err){
+    console.error('Shared state fetch failed:', err);
+  }
+}
+
+async function saveSharedState(){
+  if(!sharedStateConfigured()) return;
+  const payload = JSON.stringify(collectSharedState());
+  lastSharedJSON = payload;
+  try{
+    await fetch(SHARED_STATE_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: payload});
+  }catch(err){
+    console.error('Shared state save failed:', err);
+  }
+}
+
+function scheduleSharedSave(){
+  clearTimeout(sharedSaveTimer);
+  sharedSaveTimer = setTimeout(saveSharedState, 800);
+}
+
+if(sharedStateConfigured()){
+  fetchSharedState();
+  setInterval(fetchSharedState, SHARED_POLL_MS);
+}
 </script>
 </body>
 </html>
