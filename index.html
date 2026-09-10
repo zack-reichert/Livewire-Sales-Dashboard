@@ -172,7 +172,7 @@ a{color:var(--lw-orange);text-decoration:none}
       <div style="font-size:11px;color:var(--lw-muted)" id="pb-wb-pct">—</div>
     </div>
     <div class="card" style="padding:14px 18px">
-      <div class="card-title" style="margin-bottom:8px">Written business by week — Q2 &amp; Q3</div>
+      <div class="card-title" style="margin-bottom:8px">Written business by week — Q3</div>
       <div class="legend">
         <span><span class="ld" style="background:#F47920"></span>Written biz</span>
         <span><span class="ld" style="background:#444;outline:1px dashed #777"></span>$200K goal</span>
@@ -351,10 +351,10 @@ const CONFIG = {
     { name: 'Morgan',  cw: '',         wb: '',          co: '', ke: '', net: '', rmr: '', dr: '' },
   ],
 
-  // --- Q2 + Q3 WRITTEN BIZ BY WEEK ---
+  // --- Q3 WRITTEN BIZ BY WEEK ---
   writtenBizWeeks: {
-    labels: ['Wk13','Wk14','Wk15','Wk16','Wk17','Wk18','Wk19','Wk20','Wk21','Wk22','Wk23','Wk24','Wk25','Wk26','Wk27','Wk28'],
-    data:   [257,   636,   135,   135,   1046,  86,    260,   76,    444,   100,   17,    112,   51,    193,   721,   120  ],
+    labels: ['Wk27','Wk28'],
+    data:   [721,   120  ],
   },
 
   // --- MONTHLY GOAL VS ACTUAL ---
@@ -779,10 +779,6 @@ function applySheetData(grid){
   });
 
   const wbLabels=[], wbData=[];
-  for(let r=27;r<=40;r++){
-    const wk=cellAt(grid,r,0), val=toNum(cellAt(grid,r,1));
-    if(wk && val!==null){ wbLabels.push('Wk'+wk); wbData.push(Math.round(val/1000)); }
-  }
   for(let r=27;r<=40;r++){
     const wk=cellAt(grid,r,4), val=toNum(cellAt(grid,r,5));
     if(wk && val!==null){ wbLabels.push('Wk'+wk); wbData.push(Math.round(val/1000)); }
