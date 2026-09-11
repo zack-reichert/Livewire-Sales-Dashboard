@@ -53,16 +53,18 @@ a{color:var(--lw-orange);text-decoration:none}
 .br{background:rgba(231,76,60,.15);color:#E87070}
 .ba{background:rgba(245,166,35,.15);color:#F5B53A}
 
-.rep-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:16px}
-.rep-card{background:var(--lw-card);border:1px solid var(--lw-border);border-radius:10px;padding:14px 16px}
+.rep-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-bottom:16px}
+.rep-card{background:var(--lw-card);border:1px solid var(--lw-border);border-radius:10px;padding:14px 16px;min-width:0}
 .rep-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--lw-border)}
 .avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
 .rep-name{font-size:14px;font-weight:600}
 .rep-sub{font-size:11px;color:var(--lw-muted);margin-top:1px}
-.rm{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #2A2A2A;font-size:12px}
+.rm-group-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#666;margin:10px 0 2px}
+.rm-group-label:first-child{margin-top:0}
+.rm{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid #2A2A2A;font-size:11.5px;min-width:0}
 .rm:last-child{border-bottom:none}
-.rm-label{color:var(--lw-muted)}
-.rm-right{display:flex;gap:6px;align-items:center}
+.rm-label{color:var(--lw-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.rm-right{display:flex;gap:5px;align-items:center;flex-shrink:0}
 .rm-actual{font-weight:600}
 .rm-goal{font-size:10px;color:#555}
 
@@ -224,11 +226,11 @@ a{color:var(--lw-orange);text-decoration:none}
       <textarea class="fill-field" placeholder="This week's commitments..." style="min-height:160px;resize:vertical;line-height:1.5"></textarea>
     </div>
     <div class="card">
-      <div class="card-title">Josh — Project management</div>
+      <div class="card-title">Project Management</div>
       <textarea class="fill-field" id="note-josh" placeholder="Project management notes..." style="min-height:160px;resize:vertical;line-height:1.5" oninput="CONFIG.notes.josh=this.value; scheduleSharedSave();"></textarea>
     </div>
     <div class="card">
-      <div class="card-title">Ben — Logistics</div>
+      <div class="card-title">Logistics</div>
       <textarea class="fill-field" id="note-ben" placeholder="Logistics notes..." style="min-height:160px;resize:vertical;line-height:1.5" oninput="CONFIG.notes.ben=this.value; scheduleSharedSave();"></textarea>
     </div>
   </div>
@@ -283,14 +285,15 @@ const CONFIG = {
       initials: 'MA', color: 'rgba(74,144,217,.15)', textColor: '#7AB8E8',
       name: 'Marshall', sub: 'Run rate $1.58M · 94%',
       metrics: [
-        { label: 'Closed won last wk',     actual: '$55,580',  goal: '$60,000',  pct: 93,  c: 'a' },
-        { label: 'Closed won YTD',         actual: '$879,912', goal: '$933,333', pct: 94,  c: 'a' },
-        { label: 'Written business',       actual: '$9,082',   goal: '$25,000',  pct: 36,  c: 'r' },
-        { label: 'Pipeline $',             actual: '$431,985', goal: '$400,000', pct: 108, c: 'g' },
-        { label: 'Consults',               actual: '5',        goal: '5',        pct: 100, c: 'g' },
-        { label: 'Networking/Prospecting', actual: '0',        goal: '1',        pct: 0,   c: 'r' },
-        { label: 'Ketra appts YTD',        actual: '12',       goal: '28',       pct: 43,  c: 'r' },
-        { label: 'RMR YTD',               actual: '14',       goal: '28',       pct: 50,  c: 'a' },
+        { label: '$ Won',             group:'YTD',       actual: '$879,912', goal: '$933,333', pct: 94,  c: 'a' },
+        { label: 'RMR Accounts',      group:'YTD',       actual: '14',       goal: '28',       pct: 50,  c: 'a' },
+        { label: 'Pipeline',          group:'YTD',       actual: '$431,985', goal: '$400,000', pct: 108, c: 'g' },
+        { label: '$ Won',             group:'Last week', actual: '$55,580',  goal: '$60,000',  pct: 93,  c: 'a' },
+        { label: '$ Written',         group:'Last week', actual: '$9,082',   goal: '$25,000',  pct: 36,  c: 'r' },
+        { label: 'Design Retainers',  group:'Last week', actual: '0',        goal: '1',        pct: 0,   c: 'r' },
+        { label: 'Consults',          group:'Last week', actual: '5',        goal: '5',        pct: 100, c: 'g' },
+        { label: 'Networking Events', group:'Last week', actual: '0',        goal: '1',        pct: 0,   c: 'r' },
+        { label: 'Ketra Appts',       group:'Last week', actual: '12',       goal: '28',       pct: 43,  c: 'r' },
       ],
       target: '',
       win: '',
@@ -299,14 +302,15 @@ const CONFIG = {
       initials: 'DI', color: 'rgba(244,121,32,.15)', textColor: '#F47920',
       name: 'Dillon', sub: 'Run rate $303K · 42%',
       metrics: [
-        { label: 'Closed won last wk',     actual: '$12,635',  goal: '$15,000',  pct: 84,  c: 'a' },
-        { label: 'Closed won YTD',         actual: '$168,902', goal: '$403,844', pct: 42,  c: 'r' },
-        { label: 'Written business',       actual: '$103,440', goal: '$35,000',  pct: 295, c: 'g' },
-        { label: 'Pipeline $',             actual: '$152,758', goal: '$187,500', pct: 81,  c: 'a' },
-        { label: 'Consults',               actual: '3',        goal: '5',        pct: 60,  c: 'r' },
-        { label: 'Networking/Prospecting', actual: '0',        goal: '1',        pct: 0,   c: 'r' },
-        { label: 'Ketra appts YTD',        actual: '5',        goal: '28',       pct: 18,  c: 'r' },
-        { label: 'RMR YTD',               actual: '7',        goal: '28',       pct: 25,  c: 'r' },
+        { label: '$ Won',             group:'YTD',       actual: '$168,902', goal: '$403,844', pct: 42,  c: 'r' },
+        { label: 'RMR Accounts',      group:'YTD',       actual: '7',        goal: '28',       pct: 25,  c: 'r' },
+        { label: 'Pipeline',          group:'YTD',       actual: '$152,758', goal: '$187,500', pct: 81,  c: 'a' },
+        { label: '$ Won',             group:'Last week', actual: '$12,635',  goal: '$15,000',  pct: 84,  c: 'a' },
+        { label: '$ Written',         group:'Last week', actual: '$103,440', goal: '$35,000',  pct: 295, c: 'g' },
+        { label: 'Design Retainers',  group:'Last week', actual: '0',        goal: '1',        pct: 0,   c: 'r' },
+        { label: 'Consults',          group:'Last week', actual: '3',        goal: '5',        pct: 60,  c: 'r' },
+        { label: 'Networking Events', group:'Last week', actual: '0',        goal: '1',        pct: 0,   c: 'r' },
+        { label: 'Ketra Appts',       group:'Last week', actual: '5',        goal: '28',       pct: 18,  c: 'r' },
       ],
       target: '',
       win: '',
@@ -315,14 +319,15 @@ const CONFIG = {
       initials: 'AL', color: 'rgba(155,89,182,.15)', textColor: '#C39BD3',
       name: 'Altus', sub: '— % to goal',
       metrics: [
-        { label: 'Closed won last wk',     actual: '$0',    goal: '—',        pct: null, c: '' },
-        { label: 'Closed won YTD',         actual: '$0',    goal: '—',        pct: null, c: '' },
-        { label: 'Written business',       actual: '$0',    goal: '$20,000',  pct: 0,    c: 'r' },
-        { label: 'Pipeline $',             actual: '$8,391',goal: '—',        pct: null, c: 'g' },
-        { label: 'Consults',               actual: '5',     goal: '5',        pct: 100,  c: 'g' },
-        { label: 'Networking/Prospecting', actual: '0',     goal: '1',        pct: 0,    c: 'r' },
-        { label: 'Ketra appts YTD',        actual: '2',     goal: '—',        pct: null, c: 'g' },
-        { label: 'RMR YTD',               actual: '0',     goal: '—',        pct: null, c: '' },
+        { label: '$ Won',             group:'YTD',       actual: '$0',    goal: '—',        pct: null, c: '' },
+        { label: 'RMR Accounts',      group:'YTD',       actual: '0',     goal: '—',        pct: null, c: '' },
+        { label: 'Pipeline',          group:'YTD',       actual: '$8,391',goal: '—',        pct: null, c: 'g' },
+        { label: '$ Won',             group:'Last week', actual: '$0',    goal: '—',        pct: null, c: '' },
+        { label: '$ Written',         group:'Last week', actual: '$0',    goal: '$20,000',  pct: 0,    c: 'r' },
+        { label: 'Design Retainers',  group:'Last week', actual: '0',     goal: '1',        pct: 0,    c: 'r' },
+        { label: 'Consults',          group:'Last week', actual: '5',     goal: '5',        pct: 100,  c: 'g' },
+        { label: 'Networking Events', group:'Last week', actual: '0',     goal: '1',        pct: 0,    c: 'r' },
+        { label: 'Ketra Appts',       group:'Last week', actual: '2',     goal: '—',        pct: null, c: 'g' },
       ],
       target: '',
       win: '',
@@ -589,7 +594,8 @@ function renderAll(){
           <div class="avatar" style="background:${r.color};color:${r.textColor}">${r.initials}</div>
           <div><div class="rep-name">${r.name}</div><div class="rep-sub">${r.sub}</div></div>
         </div>
-        ${r.metrics.map(m=>`
+        ${r.metrics.map((m,mi)=>`
+          ${m.group && m.group!==r.metrics[mi-1]?.group ? `<div class="rm-group-label">${m.group}</div>` : ''}
           <div class="rm">
             <span class="rm-label">${m.label}</span>
             <div class="rm-right">
@@ -657,8 +663,8 @@ function cellAt(grid,r,c){ return String((grid[r]||[])[c]||'').trim(); }
 // Finds the row where `col` exactly equals `text` — used instead of a hardcoded row number
 // for blocks the user edits directly (inserting/deleting a row above shifts everything below
 // it in that column range, which has broken hardcoded offsets more than once).
-function findRow(grid, col, text){
-  for(let r=0;r<grid.length;r++){
+function findRow(grid, col, text, minRow){
+  for(let r=minRow||0;r<grid.length;r++){
     if(cellAt(grid,r,col)===text) return r;
   }
   return -1;
@@ -751,10 +757,26 @@ function applySheetData(grid){
   // Per-rep Commitment/Actual blocks (label col, goal(commitment) col, actual col, data rows)
   const repBlocks = {
     Zack:    {labelCol:8,  goalCol:9,  actualCol:11, rows:[13,14,15,16,17]},
-    Marshall:{labelCol:13, goalCol:14, actualCol:15, rows:[15,16,18,19,20,22,23,24,25]},
-    Dillon:  {labelCol:16, goalCol:17, actualCol:18, rows:[15,16,18,19,20,22,23,24,25]},
-    Altus:   {labelCol:19, goalCol:20, actualCol:21, rows:[15,16,18,19,20,22,23,24,25]},
+    Marshall:{labelCol:13, goalCol:14, actualCol:15},
+    Dillon:  {labelCol:16, goalCol:17, actualCol:18},
+    Altus:   {labelCol:19, goalCol:20, actualCol:21},
   };
+  // Marshall/Dillon/Altus's cards are regrouped into YTD / Last Week sections with
+  // shortened labels, in this exact display order. Looked up by the sheet's own label
+  // text (not a row number) within each rep's own label column — the exact row keeps
+  // moving as the user edits the sheet (row inserts/deletes above it), so anchoring to
+  // text instead of position is what actually survives those edits.
+  const SALES_METRIC_MAP = [
+    {sheetLabel:'$ Closed/Won YTD',             label:'$ Won',             group:'YTD'},
+    {sheetLabel:'RMR YTD',                      label:'RMR Accounts',      group:'YTD'},
+    {sheetLabel:'Pipeline $',                   label:'Pipeline',          group:'YTD'},
+    {sheetLabel:'$ Closed/Won Last Week',       label:'$ Won',             group:'Last week'},
+    {sheetLabel:'Written Business',             label:'$ Written',        group:'Last week'},
+    {sheetLabel:'Design Retainers',             label:'Design Retainers', group:'Last week'},
+    {sheetLabel:'Consults',                     label:'Consults',         group:'Last week'},
+    {sheetLabel:'Networking/Prospecting',       label:'Networking Events',group:'Last week'},
+    {sheetLabel:'Ketra Experience Center Appts',label:'Ketra Appts',      group:'Last week'},
+  ];
   // Zack has no "Ketra" row in his block — fall back to the small YTD Ketra table (cols 4-6).
   let zackKetra=null;
   for(let r=2;r<=6;r++){
@@ -764,16 +786,30 @@ function applySheetData(grid){
   CONFIG.reps.forEach(rep=>{
     const block = repBlocks[rep.name];
     if(!block) return;
-    const metrics = block.rows.map(r=>{
-      const label=cellAt(grid,r,block.labelCol);
-      if(!label) return null;
-      const goal=cellAt(grid,r,block.goalCol), actual=cellAt(grid,r,block.actualCol);
-      const pct=pctOf(actual,goal);
-      return {label, actual, goal, pct, c:classForPct(pct)};
-    }).filter(Boolean);
-    if(rep.name==='Zack' && zackKetra){
-      const pct = zackKetra.goal ? pctOf(zackKetra.actual, zackKetra.goal) : null;
-      metrics.push({label:'Ketra appts YTD', actual:zackKetra.actual, goal: zackKetra.goal || '—', pct, c: pct===null?'g':classForPct(pct)});
+    let metrics;
+    if(rep.name==='Zack'){
+      // Shortened so the label always fits on one line at this card width.
+      const SHORTEN = {'Top Target Connections':'Top Target Conn.', 'Sales/Biz Dev Meetings':'Sales Meetings'};
+      metrics = block.rows.map(r=>{
+        const label=cellAt(grid,r,block.labelCol);
+        if(!label) return null;
+        const goal=cellAt(grid,r,block.goalCol), actual=cellAt(grid,r,block.actualCol);
+        const pct=pctOf(actual,goal);
+        return {label: SHORTEN[label]||label, actual, goal, pct, c:classForPct(pct)};
+      }).filter(Boolean);
+      if(zackKetra){
+        const pct = zackKetra.goal ? pctOf(zackKetra.actual, zackKetra.goal) : null;
+        metrics.push({label:'Ketra appts YTD', actual:zackKetra.actual, goal: zackKetra.goal || '—', pct, c: pct===null?'g':classForPct(pct)});
+      }
+    } else {
+      metrics = SALES_METRIC_MAP.map(m=>{
+        const row = findRow(grid, block.labelCol, m.sheetLabel, 12);
+        if(row===-1) return null;
+        const goal=cellAt(grid,row,block.goalCol), actual=cellAt(grid,row,block.actualCol);
+        if(!actual && !goal) return null;
+        const pct=pctOf(actual,goal);
+        return {label:m.label, group:m.group, actual, goal, pct, c:classForPct(pct)};
+      }).filter(Boolean);
     }
     if(!metrics.length) return;
     rep.metrics = metrics;
@@ -781,10 +817,12 @@ function applySheetData(grid){
     // Header sub-text under the rep's name. Marshall/Dillon have an explicit sheet "Run
     // Rate" cell; Altus has a "% to YTD goal" cell but no run-rate figure; Zack has neither
     // (his role doesn't track $ closed-won) so his header falls back to his Pipeline metric.
-    const pctToGoal = toNum(cellAt(grid, 17, block.goalCol));
+    const pctRow = findRow(grid, block.labelCol, '% to YTD goal', 12);
+    const pctToGoal = pctRow===-1 ? null : toNum(cellAt(grid, pctRow, block.goalCol));
     if(rep.name==='Marshall' || rep.name==='Dillon'){
-      const runRateCol = rep.name==='Marshall' ? 14 : 17;
-      const runRate = cellAt(grid, 27, runRateCol);
+      const runRateLabel = rep.name==='Marshall' ? 'Marshall Run Rate:' : 'Dillon Run Rate:';
+      const runRateRow = findRow(grid, block.labelCol, runRateLabel, 12);
+      const runRate = runRateRow===-1 ? '' : cellAt(grid, runRateRow, block.goalCol);
       if(runRate && pctToGoal!==null) rep.sub = `Run rate ${runRate} · ${Math.round(pctToGoal)}%`;
     } else if(rep.name==='Altus'){
       rep.sub = pctToGoal===null ? '— % to goal' : `${Math.round(pctToGoal)}% to YTD goal`;
