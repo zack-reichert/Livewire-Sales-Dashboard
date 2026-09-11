@@ -789,18 +789,22 @@ function applySheetData(grid){
     if(!metrics.length) return;
     rep.metrics = metrics;
 
-    // Header sub-text under the rep's name. Marshall/Dillon have an explicit sheet "Run
-    // Rate" cell; everyone else falls back to their own "% to YTD goal" cell.
+    // Header sub-text under the rep's name: "Run rate $X · Y%". Run rate is computed the
+    // same way for every rep — YTD $ Won annualized by how far through the year the current
+    // week (sheet cell O12, same source as CONFIG.week) is — rather than reading Marshall/
+    // Dillon's old sheet "Run Rate:" cells, so all 5 reps use one consistent methodology.
     const pctRow = findRow(grid, block.labelCol, '% to YTD goal', 12);
     const pctToGoal = pctRow===-1 ? null : toNum(cellAt(grid, pctRow, block.goalCol));
-    if(rep.name==='Marshall' || rep.name==='Dillon'){
-      const runRateLabel = rep.name==='Marshall' ? 'Marshall Run Rate:' : 'Dillon Run Rate:';
-      const runRateRow = findRow(grid, block.labelCol, runRateLabel, 12);
-      const runRate = runRateRow===-1 ? '' : cellAt(grid, runRateRow, block.goalCol);
-      if(runRate && pctToGoal!==null) rep.sub = `Run rate ${runRate} · ${Math.round(pctToGoal)}%`;
-    } else {
-      rep.sub = pctToGoal===null ? '— % to goal' : `${Math.round(pctToGoal)}% to YTD goal`;
+    const weekNum = toNum(CONFIG.week);
+    const ytdWon = metrics.find(m => m.group==='YTD' && m.label==='$ Won');
+    const ytdWonActual = ytdWon ? toNum(ytdWon.actual) : null;
+    const pieces = [];
+    if(weekNum && weekNum>0 && ytdWonActual!==null){
+      const runRate = Math.round(ytdWonActual/weekNum*52);
+      pieces.push(`Run rate $${runRate.toLocaleString()}`);
     }
+    if(pctToGoal!==null) pieces.push(`${Math.round(pctToGoal)}%`);
+    rep.sub = pieces.length ? pieces.join(' · ') : '— % to goal';
   });
 
   const wbLabels=[], wbData=[];
