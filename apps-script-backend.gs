@@ -43,11 +43,53 @@ function doGet(e) {
   return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
 }
 
+// Merges an incoming save into whatever is already stored, instead of blindly overwriting
+// it. Each browser tab only knows about its own edits — if it just replaced the whole blob,
+// two people editing different reps (or different fields on the same rep) around the same
+// time would stomp each other's changes. Commitments are merged per rep (by name) and per
+// field within that rep's row; notes are merged per key.
+function mergeState_(existing, incoming) {
+  const merged = {};
+  for (const key in existing) merged[key] = existing[key];
+
+  if (incoming.commitments) {
+    const byName = {};
+    (existing.commitments || []).forEach(function (row) { byName[row.name] = row; });
+    incoming.commitments.forEach(function (row) {
+      const prev = byName[row.name] || { name: row.name };
+      const next = {};
+      for (const k in prev) next[k] = prev[k];
+      for (const k in row) next[k] = row[k];
+      byName[row.name] = next;
+    });
+    merged.commitments = Object.keys(byName).map(function (name) { return byName[name]; });
+  }
+
+  if (incoming.notes) {
+    const notes = {};
+    const prevNotes = existing.notes || {};
+    for (const k in prevNotes) notes[k] = prevNotes[k];
+    for (const k in incoming.notes) notes[k] = incoming.notes[k];
+    merged.notes = notes;
+  }
+
+  return merged;
+}
+
 function doPost(e) {
-  const sheet = getStateSheet_();
-  const body = (e && e.postData && e.postData.contents) ? e.postData.contents : '{}';
-  // Validate it's actually JSON before writing, so a bad request can't corrupt the store.
-  JSON.parse(body);
-  sheet.getRange('A1').setValue(body);
-  return ContentService.createTextOutput(JSON.stringify({ ok: true })).setMimeType(ContentService.MimeType.JSON);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sheet = getStateSheet_();
+    const body = (e && e.postData && e.postData.contents) ? e.postData.contents : '{}';
+    const incoming = JSON.parse(body); // throws (and aborts) if the body isn't valid JSON
+    const existingRaw = sheet.getRange('A1').getValue() || '{}';
+    let existing;
+    try { existing = JSON.parse(existingRaw); } catch (err) { existing = {}; }
+    const merged = mergeState_(existing, incoming);
+    sheet.getRange('A1').setValue(JSON.stringify(merged));
+    return ContentService.createTextOutput(JSON.stringify({ ok: true })).setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
 }

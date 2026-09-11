@@ -861,6 +861,11 @@ const SHARED_STATE_URL = 'https://script.google.com/macros/s/AKfycbyD0kSR-igParh
 const SHARED_POLL_MS = 20000;
 let sharedSaveTimer = null;
 let lastSharedJSON = null;
+// True from the moment a keystroke schedules a save until that save has actually gone out.
+// Without this, a 20s background poll landing inside that window would pull the (still old)
+// server state and stomp the in-progress local edit before it ever got saved — this is what
+// was making edits "not work" when someone was actively typing across multiple tabs.
+let sharedSavePending = false;
 
 function sharedStateConfigured(){
   return SHARED_STATE_URL && !SHARED_STATE_URL.includes('PASTE_YOUR');
@@ -907,6 +912,7 @@ async function withRetries(fn, attempts, delayMs){
 
 async function fetchSharedState(){
   if(!sharedStateConfigured()) return;
+  if(sharedSavePending) return; // don't let a stale poll clobber an edit that hasn't saved yet
   try{
     const res = await withRetries(()=>fetchWithTimeout(SHARED_STATE_URL, {cache:'no-store'}, 8000), 3, 700);
     if(!res.ok) throw new Error('HTTP '+res.status);
@@ -934,10 +940,13 @@ async function saveSharedState(){
     await withRetries(()=>fetchWithTimeout(SHARED_STATE_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: payload}, 8000), 3, 700);
   }catch(err){
     console.error('Shared state save failed:', err);
+  } finally {
+    sharedSavePending = false;
   }
 }
 
 function scheduleSharedSave(){
+  sharedSavePending = true;
   clearTimeout(sharedSaveTimer);
   sharedSaveTimer = setTimeout(saveSharedState, 800);
 }
