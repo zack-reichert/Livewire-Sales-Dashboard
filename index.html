@@ -73,13 +73,13 @@ a{color:var(--lw-orange);text-decoration:none}
 .fill-label{font-size:10px;color:var(--lw-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:8px}
 
 .commit-section{background:var(--lw-card);border:1px solid var(--lw-border);border-radius:10px;padding:16px 18px;margin-bottom:16px}
-.commit-header-row{display:grid;grid-template-columns:110px 1fr 1fr 60px 60px 70px 80px 70px;gap:8px;margin-bottom:6px}
+.commit-header-row{display:grid;grid-template-columns:110px 1fr 1fr 1fr 60px 60px 70px 80px 70px;gap:8px;margin-bottom:6px}
 .commit-header-row span{font-size:10px;color:var(--lw-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
-.commit-row{display:grid;grid-template-columns:110px 1fr 1fr 60px 60px 70px 80px 70px;gap:8px;margin-bottom:5px;align-items:center}
+.commit-row{display:grid;grid-template-columns:110px 1fr 1fr 1fr 60px 60px 70px 80px 70px;gap:8px;margin-bottom:5px;align-items:center}
 .commit-rep-label{font-size:13px;font-weight:500}
 .commit-input{background:#1E1E1E;border:1px solid #333;border-radius:6px;padding:5px 8px;font-size:12px;color:var(--lw-text);font-family:inherit;width:100%}
 .commit-input:focus{outline:none;border-color:var(--lw-orange);box-shadow:0 0 0 2px rgba(244,121,32,.2)}
-.totals-row{display:grid;grid-template-columns:110px 1fr 1fr 60px 60px 70px 80px 70px;gap:8px;border-top:1px solid var(--lw-border);padding-top:8px;margin-top:4px}
+.totals-row{display:grid;grid-template-columns:110px 1fr 1fr 1fr 60px 60px 70px 80px 70px;gap:8px;border-top:1px solid var(--lw-border);padding-top:8px;margin-top:4px}
 .total-lbl{font-size:11px;font-weight:700;color:var(--lw-muted);text-transform:uppercase;align-self:center}
 .total-val{font-size:13px;font-weight:700}
 .goal-hint{margin-top:8px;display:flex;gap:20px;font-size:11px;color:var(--lw-muted)}
@@ -195,13 +195,14 @@ a{color:var(--lw-orange);text-decoration:none}
       <button class="save-btn" onclick="saveCommitments()">Save commitments</button>
     </div>
     <div class="commit-header-row">
-      <span>Rep</span><span>Closed/won $</span><span>Written biz $</span><span>Consults</span><span>Ketra</span><span>Networking</span><span>RMR Pipeline</span><span>Design Ret.</span>
+      <span>Rep</span><span>Closed/won $</span><span>Written biz $</span><span>Top Target</span><span>Consults</span><span>Ketra</span><span>Networking</span><span>RMR Pipeline</span><span>Design Ret.</span>
     </div>
     <div id="commit-rows"></div>
     <div class="totals-row">
       <span class="total-lbl">Total</span>
       <span class="total-val" id="tot-cw">—</span>
       <span class="total-val" id="tot-wb">—</span>
+      <span></span>
       <span class="total-val" id="tot-co">—</span>
       <span class="total-val" id="tot-ke">—</span>
       <span class="total-val" id="tot-net">—</span>
@@ -278,8 +279,6 @@ const CONFIG = {
         { label: 'Pipeline last week',     actual: '$66K',  goal: '$40K', pct: 165, c: 'g' },
         { label: 'Ketra appts YTD',        actual: '15',    goal: '—',    pct: null,c: 'g' },
       ],
-      target: '',
-      win: '',
     },
     {
       initials: 'MA', color: 'rgba(74,144,217,.15)', textColor: '#7AB8E8',
@@ -295,8 +294,6 @@ const CONFIG = {
         { label: 'Networking Events', group:'Last week', actual: '0',        goal: '1',        pct: 0,   c: 'r' },
         { label: 'Ketra Appts',       group:'Last week', actual: '12',       goal: '28',       pct: 43,  c: 'r' },
       ],
-      target: '',
-      win: '',
     },
     {
       initials: 'DI', color: 'rgba(244,121,32,.15)', textColor: '#F47920',
@@ -312,8 +309,6 @@ const CONFIG = {
         { label: 'Networking Events', group:'Last week', actual: '0',        goal: '1',        pct: 0,   c: 'r' },
         { label: 'Ketra Appts',       group:'Last week', actual: '5',        goal: '28',       pct: 18,  c: 'r' },
       ],
-      target: '',
-      win: '',
     },
     {
       initials: 'AL', color: 'rgba(155,89,182,.15)', textColor: '#C39BD3',
@@ -329,8 +324,6 @@ const CONFIG = {
         { label: 'Networking Events', group:'Last week', actual: '0',     goal: '1',        pct: 0,    c: 'r' },
         { label: 'Ketra Appts',       group:'Last week', actual: '2',     goal: '—',        pct: null, c: 'g' },
       ],
-      target: '',
-      win: '',
     },
     {
       initials: 'MO', color: 'rgba(45,212,191,.15)', textColor: '#2DD4BF',
@@ -342,18 +335,16 @@ const CONFIG = {
         { label: 'Design retainers',       actual: '0',     goal: '1',        pct: 0, c: 'r' },
         { label: 'Networking events',      actual: '0',     goal: '1',        pct: 0, c: 'r' },
       ],
-      target: '',
-      win: '',
     },
   ],
 
   // --- COMMITMENTS ---
   commitments: [
-    { name: 'Zack',    cw: '$15,000',  wb: '$100,000', co: '', ke: '', net: '', rmr: '', dr: '' },
-    { name: 'Marshall',cw: '$103,000', wb: '$25,000',  co: '', ke: '', net: '', rmr: '', dr: '' },
-    { name: 'Dillon',  cw: '$15,000',  wb: '$35,000',  co: '', ke: '', net: '', rmr: '', dr: '' },
-    { name: 'Altus',   cw: '',         wb: '',          co: '', ke: '', net: '', rmr: '', dr: '' },
-    { name: 'Morgan',  cw: '',         wb: '',          co: '', ke: '', net: '', rmr: '', dr: '' },
+    { name: 'Zack',    cw: '$15,000',  wb: '$100,000', tt: '', co: '', ke: '', net: '', rmr: '', dr: '' },
+    { name: 'Marshall',cw: '$103,000', wb: '$25,000',  tt: '', co: '', ke: '', net: '', rmr: '', dr: '' },
+    { name: 'Dillon',  cw: '$15,000',  wb: '$35,000',  tt: '', co: '', ke: '', net: '', rmr: '', dr: '' },
+    { name: 'Altus',   cw: '',         wb: '',          tt: '', co: '', ke: '', net: '', rmr: '', dr: '' },
+    { name: 'Morgan',  cw: '',         wb: '',          tt: '', co: '', ke: '', net: '', rmr: '', dr: '' },
   ],
 
   // --- Q3 WRITTEN BIZ BY WEEK ---
@@ -436,6 +427,7 @@ function buildCommits(){
       <span class="commit-rep-label">${r.name}</span>
       <input class="commit-input" id="cw-${i}"  placeholder="$0" value="${r.cw}"       oninput="CONFIG.commitments[${i}].cw=this.value;   calcTotals(); scheduleSharedSave();">
       <input class="commit-input" id="wb-${i}"  placeholder="$0" value="${r.wb}"       oninput="CONFIG.commitments[${i}].wb=this.value;   calcTotals(); scheduleSharedSave();">
+      <input class="commit-input" id="tt-${i}"  placeholder="Name / Business" value="${r.tt||''}" oninput="CONFIG.commitments[${i}].tt=this.value;   scheduleSharedSave();">
       <input class="commit-input" id="co-${i}"  placeholder="0"  value="${r.co}"       oninput="CONFIG.commitments[${i}].co=this.value;   calcTotals(); scheduleSharedSave();">
       <input class="commit-input" id="ke-${i}"  placeholder="0"  value="${r.ke}"       oninput="CONFIG.commitments[${i}].ke=this.value;   calcTotals(); scheduleSharedSave();">
       <input class="commit-input" id="net-${i}" placeholder="0"  value="${r.net||''}"  oninput="CONFIG.commitments[${i}].net=this.value;  calcTotals(); scheduleSharedSave();">
@@ -604,10 +596,6 @@ function renderAll(){
               ${badge(m.pct,m.c)}
             </div>
           </div>`).join('')}
-        <div class="fill-label">Top target</div>
-        <input class="fill-field" id="target-${ri}" placeholder="Name / Business" value="${r.target}" oninput="CONFIG.reps[${ri}].target=this.value; scheduleSharedSave();">
-        <div class="fill-label">Biggest win</div>
-        <input class="fill-field" id="win-${ri}" placeholder="This week's win..." value="${r.win}" oninput="CONFIG.reps[${ri}].win=this.value; scheduleSharedSave();">
       </div>`).join('');
   }
 
@@ -893,8 +881,7 @@ function sharedStateConfigured(){
 
 function collectSharedState(){
   return {
-    commitments: CONFIG.commitments.map(r=>({name:r.name, cw:r.cw, wb:r.wb, co:r.co, ke:r.ke, net:r.net, rmr:r.rmr, dr:r.dr})),
-    repInputs: CONFIG.reps.map(r=>({name:r.name, target:r.target, win:r.win})),
+    commitments: CONFIG.commitments.map(r=>({name:r.name, cw:r.cw, wb:r.wb, tt:r.tt, co:r.co, ke:r.ke, net:r.net, rmr:r.rmr, dr:r.dr})),
     notes: { josh: CONFIG.notes.josh||'', ben: CONFIG.notes.ben||'' },
   };
 }
@@ -904,10 +891,6 @@ function applySharedState(state){
   (state.commitments||[]).forEach(sc=>{
     const row = CONFIG.commitments.find(r=>r.name===sc.name);
     if(row) Object.assign(row, sc);
-  });
-  (state.repInputs||[]).forEach(ri=>{
-    const rep = CONFIG.reps.find(r=>r.name===ri.name);
-    if(rep){ rep.target = ri.target||''; rep.win = ri.win||''; }
   });
   if(state.notes){
     CONFIG.notes.josh = state.notes.josh||'';
