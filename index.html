@@ -654,6 +654,16 @@ function parseCSV(text){
 
 function cellAt(grid,r,c){ return String((grid[r]||[])[c]||'').trim(); }
 
+// Finds the row where `col` exactly equals `text` — used instead of a hardcoded row number
+// for blocks the user edits directly (inserting/deleting a row above shifts everything below
+// it in that column range, which has broken hardcoded offsets more than once).
+function findRow(grid, col, text){
+  for(let r=0;r<grid.length;r++){
+    if(cellAt(grid,r,col)===text) return r;
+  }
+  return -1;
+}
+
 function toNum(s){
   if(s==null) return null;
   s=String(s).replace(/[$,%]/g,'').trim();
@@ -695,15 +705,18 @@ function applySheetData(grid){
     ({label:r.label, actual:r.actual, goal:r.goal, pct:r.pct, color:hexForClass(classForPct(r.pct))}));
 
   const monthRows=[];
-  for(let r=13;r<=24;r++){
-    const month=cellAt(grid,r,0);
-    if(!month) continue;
-    const goalRaw=toNum(cellAt(grid,r,1)), actualRaw=toNum(cellAt(grid,r,2));
-    monthRows.push({
-      month,
-      goal: goalRaw===null?null:Math.round(goalRaw/1000),
-      actual: actualRaw===null?null:Math.round(actualRaw/1000)
-    });
+  const janRow = findRow(grid, 0, 'Jan');
+  if(janRow!==-1){
+    for(let r=janRow; r<janRow+12; r++){
+      const month=cellAt(grid,r,0);
+      if(!month) continue;
+      const goalRaw=toNum(cellAt(grid,r,1)), actualRaw=toNum(cellAt(grid,r,2));
+      monthRows.push({
+        month,
+        goal: goalRaw===null?null:Math.round(goalRaw/1000),
+        actual: actualRaw===null?null:Math.round(actualRaw/1000)
+      });
+    }
   }
   if(monthRows.length===12) CONFIG.monthly = monthRows;
 
@@ -722,15 +735,18 @@ function applySheetData(grid){
     CONFIG.cwYoy.goal = goalCum;
   }
 
-  // Pipeline YoY 2026 line — "Pipeline - Avg" table (rows 44-55, Jan-Dec full month names).
-  let hitNullPip=false;
-  const pipY2026=[];
-  for(let i=0;i<12;i++){
-    const val = toNum(cellAt(grid, 44+i, 1));
-    if(val===null || hitNullPip){ hitNullPip=true; pipY2026.push(null); }
-    else pipY2026.push(Math.round(val/1000));
+  // Pipeline YoY 2026 line — "Pipeline - Avg" table (Jan-Dec full month names in col 0).
+  const pipJanRow = findRow(grid, 0, 'January');
+  if(pipJanRow!==-1){
+    let hitNullPip=false;
+    const pipY2026=[];
+    for(let i=0;i<12;i++){
+      const val = toNum(cellAt(grid, pipJanRow+i, 1));
+      if(val===null || hitNullPip){ hitNullPip=true; pipY2026.push(null); }
+      else pipY2026.push(Math.round(val/1000));
+    }
+    if(pipY2026.some(v=>v!==null)) CONFIG.pipYoy.y2026 = pipY2026;
   }
-  if(pipY2026.some(v=>v!==null)) CONFIG.pipYoy.y2026 = pipY2026;
 
   // Per-rep Commitment/Actual blocks (label col, goal(commitment) col, actual col, data rows)
   const repBlocks = {
@@ -779,9 +795,13 @@ function applySheetData(grid){
   });
 
   const wbLabels=[], wbData=[];
-  for(let r=27;r<=40;r++){
-    const wk=cellAt(grid,r,4), val=toNum(cellAt(grid,r,5));
-    if(wk && val!==null){ wbLabels.push('Wk'+wk); wbData.push(Math.round(val/1000)); }
+  const q3HeaderRow = findRow(grid, 4, 'Q3 2026 - Week');
+  if(q3HeaderRow!==-1){
+    for(let r=q3HeaderRow+1; r<q3HeaderRow+1+20; r++){
+      const wk=cellAt(grid,r,4), val=toNum(cellAt(grid,r,5));
+      if(!wk) break;
+      if(val!==null){ wbLabels.push('Wk'+wk); wbData.push(Math.round(val/1000)); }
+    }
   }
   if(wbLabels.length) CONFIG.writtenBizWeeks = {labels:wbLabels, data:wbData};
 }
