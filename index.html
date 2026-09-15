@@ -220,11 +220,11 @@ a{color:var(--lw-orange);text-decoration:none}
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:40px">
     <div class="card">
       <div class="card-title">Parking lot</div>
-      <textarea class="fill-field" placeholder="Items to come back to..." style="min-height:160px;resize:vertical;line-height:1.5"></textarea>
+      <textarea class="fill-field" id="note-parking-lot" placeholder="Items to come back to..." style="min-height:160px;resize:vertical;line-height:1.5" oninput="CONFIG.notes.parkingLot=this.value; scheduleSharedSave();"></textarea>
     </div>
     <div class="card">
       <div class="card-title">Commitments</div>
-      <textarea class="fill-field" placeholder="This week's commitments..." style="min-height:160px;resize:vertical;line-height:1.5"></textarea>
+      <textarea class="fill-field" id="note-commitments" placeholder="This week's commitments..." style="min-height:160px;resize:vertical;line-height:1.5" oninput="CONFIG.notes.commitments=this.value; scheduleSharedSave();"></textarea>
     </div>
     <div class="card">
       <div class="card-title">Project Management</div>
@@ -245,8 +245,8 @@ const CONFIG = {
   week: 28,
   quarter: 'Q3 2026',
 
-  // Shared team notes (Josh/Ben) — populated from the shared backend on load.
-  notes: { josh: '', ben: '' },
+  // Shared team notes (parking lot, commitments recap, Josh/Ben) — populated from the shared backend on load.
+  notes: { parkingLot: '', commitments: '', josh: '', ben: '' },
 
   // --- SALES SCOREBOARD ---
   sales: [
@@ -613,8 +613,12 @@ function renderAll(){
     calcTotals();
   }
 
+  const parkingLotEl = document.getElementById('note-parking-lot');
+  const commitmentsNoteEl = document.getElementById('note-commitments');
   const joshEl = document.getElementById('note-josh');
   const benEl = document.getElementById('note-ben');
+  if(parkingLotEl && document.activeElement!==parkingLotEl) parkingLotEl.value = CONFIG.notes.parkingLot||'';
+  if(commitmentsNoteEl && document.activeElement!==commitmentsNoteEl) commitmentsNoteEl.value = CONFIG.notes.commitments||'';
   if(joshEl && document.activeElement!==joshEl) joshEl.value = CONFIG.notes.josh||'';
   if(benEl && document.activeElement!==benEl) benEl.value = CONFIG.notes.ben||'';
 
@@ -845,7 +849,8 @@ setInterval(fetchLiveData, SYNC_INTERVAL_MS);
 
 // ============================================================
 // SHARED TEAM INPUTS — the "This week's commitments" table, each
-// rep's Top Target / Biggest Win, and the Josh/Ben notes are all
+// rep's Top Target / Biggest Win, and the Parking lot/Commitments/
+// Josh/Ben meeting notes are all
 // stored in a small Google Apps Script "backend" (a JSON blob in a
 // dedicated tab of the same Google Sheet) so every viewer of the
 // GitHub Pages URL sees the same data, and one person's entry shows
@@ -874,7 +879,7 @@ function sharedStateConfigured(){
 function collectSharedState(){
   return {
     commitments: CONFIG.commitments.map(r=>({name:r.name, cw:r.cw, wb:r.wb, tt:r.tt, co:r.co, ke:r.ke, net:r.net, rmr:r.rmr, dr:r.dr})),
-    notes: { josh: CONFIG.notes.josh||'', ben: CONFIG.notes.ben||'' },
+    notes: { parkingLot: CONFIG.notes.parkingLot||'', commitments: CONFIG.notes.commitments||'', josh: CONFIG.notes.josh||'', ben: CONFIG.notes.ben||'' },
   };
 }
 
@@ -885,6 +890,8 @@ function applySharedState(state){
     if(row) Object.assign(row, sc);
   });
   if(state.notes){
+    CONFIG.notes.parkingLot = state.notes.parkingLot||'';
+    CONFIG.notes.commitments = state.notes.commitments||'';
     CONFIG.notes.josh = state.notes.josh||'';
     CONFIG.notes.ben = state.notes.ben||'';
   }
