@@ -168,22 +168,25 @@ a{color:var(--lw-orange);text-decoration:none}
     </div>
     <div class="card" style="padding:14px 18px">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
-        <span style="font-size:12px;font-weight:600;color:var(--lw-muted);text-transform:uppercase;letter-spacing:.08em">Written business — last week</span>
-        <span style="font-size:11px;color:var(--lw-muted)">goal <strong style="color:var(--lw-text)" id="pb-wb-goal">$200K</strong></span>
+        <span style="font-size:12px;font-weight:600;color:var(--lw-muted);text-transform:uppercase;letter-spacing:.08em">Closed won — Q4</span>
+        <span style="font-size:11px;color:var(--lw-muted)">goal <strong style="color:var(--lw-text)" id="pb-q4-goal">$1,075,000</strong></span>
       </div>
-      <div style="font-size:28px;font-weight:700;color:#F47920;margin-bottom:6px" id="pb-wb-val">$0</div>
+      <div style="font-size:28px;font-weight:700;color:#4A90D9;margin-bottom:6px" id="pb-q4-val">—</div>
       <div style="height:8px;border-radius:4px;background:#333;overflow:hidden;margin-bottom:4px">
-        <div id="pb-wb-fill" style="height:100%;border-radius:4px;background:#F47920;width:0%;transition:width .5s ease"></div>
+        <div id="pb-q4-fill" style="height:100%;border-radius:4px;background:#4A90D9;width:0%;transition:width .5s ease"></div>
       </div>
-      <div style="font-size:11px;color:var(--lw-muted)" id="pb-wb-pct">—</div>
+      <div style="font-size:11px;color:var(--lw-muted)" id="pb-q4-pct">—</div>
     </div>
     <div class="card" style="padding:14px 18px">
-      <div class="card-title" style="margin-bottom:8px">Written business by week — Q3</div>
-      <div class="legend">
-        <span><span class="ld" style="background:#F47920"></span>Written biz</span>
-        <span><span class="ld" style="background:#444;outline:1px dashed #777"></span>$200K goal</span>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+        <span style="font-size:12px;font-weight:600;color:var(--lw-muted);text-transform:uppercase;letter-spacing:.08em">Closed won — YTD</span>
+        <span style="font-size:11px;color:var(--lw-muted)">goal <strong style="color:var(--lw-text)" id="pb-ytd-goal">$4.25M</strong></span>
       </div>
-      <div class="chart-wrap" style="height:120px"><canvas id="wbChart"></canvas></div>
+      <div style="font-size:28px;font-weight:700;color:#4A90D9;margin-bottom:6px" id="pb-ytd-val">—</div>
+      <div style="height:8px;border-radius:4px;background:#333;overflow:hidden;margin-bottom:4px">
+        <div id="pb-ytd-fill" style="height:100%;border-radius:4px;background:#4A90D9;width:0%;transition:width .5s ease"></div>
+      </div>
+      <div style="font-size:11px;color:var(--lw-muted)" id="pb-ytd-pct">—</div>
     </div>
   </div>
 
@@ -373,10 +376,10 @@ const CONFIG = {
     { name: 'Morgan',  cw: '',         wb: '',          tt: '', co: '', ke: '', net: '', rmr: '', dr: '' },
   ],
 
-  // --- Q3 WRITTEN BIZ BY WEEK ---
-  writtenBizWeeks: {
-    labels: ['Wk27','Wk28'],
-    data:   [721,   120  ],
+  // Fixed targets for the Q4 and YTD closed-won cards.
+  goals: {
+    q4:  { amount: 1075000, label: '$1,075,000' },
+    ytd: { amount: 4250000, label: '$4.25M' },
   },
 
   // --- MONTHLY GOAL VS ACTUAL ---
@@ -500,32 +503,10 @@ function saveCommitments(){
 
 // Charts — instances are kept so a live sync can redraw them in place
 const gridC='rgba(255,255,255,0.06)', tickC='#666';
-let wbChart, cwYoyChart, pipYoyChart;
+let cwYoyChart, pipYoyChart;
 
 function renderCharts(){
-  [wbChart, cwYoyChart, pipYoyChart].forEach(c=>c && c.destroy());
-
-  wbChart = new Chart(document.getElementById('wbChart'),{
-    type:'bar',
-    data:{
-      labels: CONFIG.writtenBizWeeks.labels,
-      datasets:[
-        {label:'Written biz', data:CONFIG.writtenBizWeeks.data,
-         backgroundColor: CONFIG.writtenBizWeeks.data.map((_,i)=>i===CONFIG.writtenBizWeeks.data.length-1?'#555':'#F47920'),
-         borderRadius:3, borderSkipped:false},
-        {type:'line',label:'Goal',data:CONFIG.writtenBizWeeks.data.map(()=>200),
-         borderColor:'#555',borderWidth:1.5,borderDash:[4,3],pointRadius:0,fill:false}
-      ]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'$'+ctx.raw+'K'}}},
-      scales:{
-        x:{grid:{color:gridC},ticks:{color:tickC,font:{size:10}}},
-        y:{grid:{color:gridC},ticks:{color:tickC,font:{size:10},callback:v=>'$'+v+'K'},beginAtZero:true}
-      }
-    }
-  });
+  [cwYoyChart, pipYoyChart].forEach(c=>c && c.destroy());
 
   cwYoyChart = new Chart(document.getElementById('cwYoyChart'),{
     type:'line',
@@ -570,9 +551,8 @@ function renderCharts(){
 
 // Preserves anything typed into free-text/manual fields (top target, biggest win,
 // consults/ketra/networking/RMR/design-retainer commitment inputs) across a re-render,
-// "Closed won — MTD" and "Written business" cards mirror the Sales/Pipeline scoreboard
-// rows above (Closed Won $ <month> and Written $ (Last Week)) rather than having their
-// own data — found by label so it keeps working as the month name changes.
+// "Closed won — MTD" mirrors the Sales scoreboard row above (Closed Won $ <month>), found by
+// label so it keeps working as the month name changes.
 function updateLinkedProgressCards(){
   const cw = CONFIG.sales.find(s => /^closed won \$ (?!ytd)/i.test(s.label));
   if(cw){
@@ -584,15 +564,34 @@ function updateLinkedProgressCards(){
     document.getElementById('pb-cw-pct').textContent = (cw.pct===null?'—':cw.pct+'%')+' of '+cw.goal+' goal';
   }
 
-  const wb = CONFIG.pipeline.find(p => /written.*last week/i.test(p.label));
-  if(wb){
-    const pct = wb.pct===null ? 0 : Math.min(wb.pct,100);
-    document.getElementById('pb-wb-val').textContent = wb.actual;
-    document.getElementById('pb-wb-goal').textContent = wb.goal;
-    document.getElementById('pb-wb-fill').style.width = pct+'%';
-    document.getElementById('pb-wb-fill').style.background = wb.color;
-    document.getElementById('pb-wb-pct').textContent = (wb.pct===null?'—':wb.pct+'%')+' of '+wb.goal+' goal';
+  // Q4 and year-to-date cards. Goals are fixed team targets (CONFIG.goals). Actuals come from
+  // the sheet: Q4 = Oct + Nov + Dec monthly-table actuals, falling back to the scoreboard's
+  // current-month figure for a month whose monthly-table cell is still blank; YTD = the
+  // scoreboard's "Closed Won $ YTD".
+  const fmtUsd = n => n>=1e6 ? '$'+(n/1e6).toFixed(2)+'M' : '$'+Math.round(n/1e3)+'K';
+  const setGoalCard = (prefix, actual, goal) => {
+    const pct = Math.round(actual/goal.amount*100);
+    document.getElementById('pb-'+prefix+'-val').textContent = fmtUsd(actual);
+    document.getElementById('pb-'+prefix+'-goal').textContent = goal.label;
+    document.getElementById('pb-'+prefix+'-fill').style.width = Math.min(pct,100)+'%';
+    document.getElementById('pb-'+prefix+'-fill').style.background = hexForClass(classForPct(pct));
+    document.getElementById('pb-'+prefix+'-pct').textContent = pct+'% of '+goal.label+' goal';
+  };
+
+  const MONTH_NAMES=['january','february','march','april','may','june','july','august','september','october','november','december'];
+  const cwMonthIdx = cw ? MONTH_NAMES.findIndex(n=>cw.label.toLowerCase().includes(n)) : -1;
+  let q4 = 0;
+  for(let i=9;i<12;i++){
+    const mo = CONFIG.monthly[i];
+    let v = mo && mo.actualUsd!=null ? mo.actualUsd : null;
+    if(v===null && i===cwMonthIdx) v = toNum(cw.actual);
+    q4 += v||0;
   }
+  setGoalCard('q4', q4, CONFIG.goals.q4);
+
+  const ytdRow = CONFIG.sales.find(s => /^closed won \$ ytd/i.test(s.label));
+  const ytd = ytdRow ? toNum(ytdRow.actual) : null;
+  if(ytd!==null) setGoalCard('ytd', ytd, CONFIG.goals.ytd);
 }
 
 // Master render — call on initial load, after every live sheet sync, and after every shared-
@@ -739,7 +738,8 @@ function applySheetData(grid){
       monthRows.push({
         month,
         goal: goalRaw===null?null:Math.round(goalRaw/1000),
-        actual: actualRaw===null?null:Math.round(actualRaw/1000)
+        actual: actualRaw===null?null:Math.round(actualRaw/1000),
+        actualUsd: actualRaw
       });
     }
   }
@@ -830,17 +830,6 @@ function applySheetData(grid){
     if(pctToGoal!==null) pieces.push(`${Math.round(pctToGoal)}%`);
     rep.sub = pieces.length ? pieces.join(' · ') : '— % to goal';
   });
-
-  const wbLabels=[], wbData=[];
-  const q3HeaderRow = findRow(grid, 4, 'Q3 2026 - Week');
-  if(q3HeaderRow!==-1){
-    for(let r=q3HeaderRow+1; r<q3HeaderRow+1+20; r++){
-      const wk=cellAt(grid,r,4), val=toNum(cellAt(grid,r,5));
-      if(!wk) break;
-      if(val!==null){ wbLabels.push('Wk'+wk); wbData.push(Math.round(val/1000)); }
-    }
-  }
-  if(wbLabels.length) CONFIG.writtenBizWeeks = {labels:wbLabels, data:wbData};
 }
 
 function setSyncStatus(state, text){
