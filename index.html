@@ -227,7 +227,7 @@ a{color:var(--lw-orange);text-decoration:none}
 
   <!-- MEETING NOTES -->
   <p class="section-label" style="margin-top:24px">Meeting notes</p>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:40px">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
     <div class="card">
       <div class="card-title">Parking lot</div>
       <textarea class="fill-field" id="note-parking-lot" placeholder="Items to come back to..." style="min-height:160px;resize:vertical;line-height:1.5" oninput="CONFIG.notes.parkingLot=this.value; scheduleSharedSave();" disabled></textarea>
@@ -236,6 +236,8 @@ a{color:var(--lw-orange);text-decoration:none}
       <div class="card-title">Commitments</div>
       <textarea class="fill-field" id="note-commitments" placeholder="This week's commitments..." style="min-height:160px;resize:vertical;line-height:1.5" oninput="CONFIG.notes.commitments=this.value; scheduleSharedSave();" disabled></textarea>
     </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:40px">
     <div class="card">
       <div class="card-title">Project Management</div>
       <textarea class="fill-field" id="note-josh" placeholder="Project management notes..." style="min-height:160px;resize:vertical;line-height:1.5" oninput="CONFIG.notes.josh=this.value; scheduleSharedSave();" disabled></textarea>
@@ -243,6 +245,10 @@ a{color:var(--lw-orange);text-decoration:none}
     <div class="card">
       <div class="card-title">Logistics</div>
       <textarea class="fill-field" id="note-ben" placeholder="Logistics notes..." style="min-height:160px;resize:vertical;line-height:1.5" oninput="CONFIG.notes.ben=this.value; scheduleSharedSave();" disabled></textarea>
+    </div>
+    <div class="card">
+      <div class="card-title">Lightsource</div>
+      <textarea class="fill-field" id="note-lightsource" placeholder="Lightsource notes..." style="min-height:160px;resize:vertical;line-height:1.5" oninput="CONFIG.notes.lightsource=this.value; scheduleSharedSave();" disabled></textarea>
     </div>
   </div>
 </div>
@@ -268,7 +274,7 @@ const CONFIG = {
   quarter: 'Q3 2026',
 
   // Shared team notes (parking lot, commitments recap, Josh/Ben) — populated from the shared backend on load.
-  notes: { parkingLot: '', commitments: '', josh: '', ben: '' },
+  notes: { parkingLot: '', commitments: '', josh: '', ben: '', lightsource: '' },
 
   // --- SALES SCOREBOARD ---
   sales: [
@@ -636,10 +642,12 @@ function renderAll(){
   const commitmentsNoteEl = document.getElementById('note-commitments');
   const joshEl = document.getElementById('note-josh');
   const benEl = document.getElementById('note-ben');
+  const lightsourceEl = document.getElementById('note-lightsource');
   if(parkingLotEl && document.activeElement!==parkingLotEl) parkingLotEl.value = CONFIG.notes.parkingLot||'';
   if(commitmentsNoteEl && document.activeElement!==commitmentsNoteEl) commitmentsNoteEl.value = CONFIG.notes.commitments||'';
   if(joshEl && document.activeElement!==joshEl) joshEl.value = CONFIG.notes.josh||'';
   if(benEl && document.activeElement!==benEl) benEl.value = CONFIG.notes.ben||'';
+  if(lightsourceEl && document.activeElement!==lightsourceEl) lightsourceEl.value = CONFIG.notes.lightsource||'';
 
   renderCharts();
 }
@@ -894,7 +902,7 @@ function setSharedSyncNote(text, pending){
 
 function unlockSharedInputs(){
   sharedStateLoaded = true;
-  ['note-parking-lot','note-commitments','note-josh','note-ben','save-commit-btn'].forEach(id=>{
+  ['note-parking-lot','note-commitments','note-josh','note-ben','note-lightsource','save-commit-btn'].forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.disabled = false;
   });
@@ -904,7 +912,7 @@ function unlockSharedInputs(){
 function collectSharedState(){
   return {
     commitments: CONFIG.commitments.map(r=>({name:r.name, cw:r.cw, wb:r.wb, tt:r.tt, co:r.co, ke:r.ke, net:r.net, rmr:r.rmr, dr:r.dr})),
-    notes: { parkingLot: CONFIG.notes.parkingLot||'', commitments: CONFIG.notes.commitments||'', josh: CONFIG.notes.josh||'', ben: CONFIG.notes.ben||'' },
+    notes: { parkingLot: CONFIG.notes.parkingLot||'', commitments: CONFIG.notes.commitments||'', josh: CONFIG.notes.josh||'', ben: CONFIG.notes.ben||'', lightsource: CONFIG.notes.lightsource||'' },
   };
 }
 
@@ -919,6 +927,7 @@ function applySharedState(state){
     CONFIG.notes.commitments = state.notes.commitments||'';
     CONFIG.notes.josh = state.notes.josh||'';
     CONFIG.notes.ben = state.notes.ben||'';
+    CONFIG.notes.lightsource = state.notes.lightsource||'';
   }
 }
 
